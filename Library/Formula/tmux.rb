@@ -33,6 +33,6 @@ class Tmux < Formula
   end
 
   def test
-    !`@{bin}/tmux -V`.strip.chomp.empty?
+    system "#{bin}/tmux -V"
   end
 end
