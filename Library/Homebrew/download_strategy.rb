@@ -64,7 +64,7 @@ class CurlDownloadStrategy < AbstractDownloadStrategy
         end
       end
     else
-      puts "File already downloaded in #{File.dirname(@tarball_path)}"
+      puts "Already downloaded: #{@tarball_path}"
     end
     return @tarball_path # thus performs checksum verification
   end
@@ -191,7 +191,13 @@ end
 class CurlBottleDownloadStrategy < CurlDownloadStrategy
   def initialize url, name, version, specs
     super
-    @tarball_path = HOMEBREW_CACHE/"#{name}-#{version}.bottle#{ext}"
+    @tarball_path = HOMEBREW_CACHE/"#{name}-#{version}#{ext}"
+
+    unless @tarball_path.exist?
+      old_bottle_path = HOMEBREW_CACHE/"#{name}-#{version}-bottle.tar.gz"
+      old_bottle_path = HOMEBREW_CACHE/"#{name}-#{version}.#{MacOS.cat}.bottle-bottle.tar.gz" unless old_bottle_path.exist?
+      FileUtils.mv old_bottle_path, @tarball_path if old_bottle_path.exist?
+    end
   end
   def stage
     ohai "Pouring #{File.basename(@tarball_path)}"
@@ -488,8 +494,7 @@ class BazaarDownloadStrategy < AbstractDownloadStrategy
   def cached_location; @clone; end
 
   def fetch
-    raise "You must install bazaar first" \
-          unless which("bzr")
+    raise "You must install bazaar first" unless which("bzr")
 
     ohai "Cloning #{@url}"
     unless @clone.exist?
@@ -532,8 +537,7 @@ class FossilDownloadStrategy < AbstractDownloadStrategy
   def cached_location; @clone; end
 
   def fetch
-    raise "You must install fossil first" \
-          unless which("fossil")
+    raise "You must install fossil first" unless which("fossil")
 
     ohai "Cloning #{@url}"
     unless @clone.exist?

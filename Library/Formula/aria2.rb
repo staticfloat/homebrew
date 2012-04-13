@@ -7,6 +7,17 @@ class Aria2 < Formula
 
   depends_on 'pkg-config' => :build
 
+  # Leopard's libxml2 is too old.
+  depends_on 'libxml2' if MacOS.leopard?
+
+  fails_with :clang do
+    build 318
+    cause <<-EOS.undent
+      call to function 'stripIter' that is neither visible in the
+      template definition nor found by argument-dependent lookup
+      EOS
+  end
+
   def install
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"

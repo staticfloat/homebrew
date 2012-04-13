@@ -33,4 +33,8 @@ class Tmux < Formula
       #{etc}/bash_completion.d/tmux
     EOS
   end
+
+  def test
+    system "#{bin}/tmux -V"
+  end
 end

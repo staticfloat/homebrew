@@ -1,19 +1,21 @@
 require 'formula'
 
 class GitManuals < Formula
-  url 'http://git-core.googlecode.com/files/git-manpages-1.7.9.3.tar.gz'
-  sha1 '223daa871a64facc60bdf643c50c78eac21c88f4'
+  url 'http://git-core.googlecode.com/files/git-manpages-1.7.10.tar.gz'
+  sha1 '5852d1dead0190edeba1803a70fac5d76523a616'
 end
 
 class GitHtmldocs < Formula
-  url 'http://git-core.googlecode.com/files/git-htmldocs-1.7.9.3.tar.gz'
-  sha1 '2d488c3975da1c2ea90965b82233a986c498a8c2'
+  url 'http://git-core.googlecode.com/files/git-htmldocs-1.7.10.tar.gz'
+  sha1 'd624d67dd4988dad8164f4395d74b73c21434a29'
 end
 
 class Git < Formula
   homepage 'http://git-scm.com'
-  url 'http://git-core.googlecode.com/files/git-1.7.9.3.tar.gz'
-  sha1 '6216153da1139c25cb96cfb4441eff327013ec4f'
+  url 'http://git-core.googlecode.com/files/git-1.7.10.tar.gz'
+  sha1 '501ee8685c148d377950e42c111e01d83fd1d41a'
+
+  head 'https://github.com/git/git.git'
 
   depends_on 'pcre' if ARGV.include? '--with-pcre'
 
