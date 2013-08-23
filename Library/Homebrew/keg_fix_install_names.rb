@@ -3,6 +3,7 @@ require 'utils/inreplace'
 class Keg
   include Utils::Inreplace
   def fix_install_names options=()
+    return unless MACOS
     mach_o_files.each do |file|
       install_names_for(file, options, relocate_reject_proc( HOMEBREW_PREFIX )) do |id, bad_names|
         file.ensure_writable do
