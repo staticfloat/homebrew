@@ -78,8 +78,8 @@ module Homebrew extend self
   def perform_preinstall_checks
     check_ppc
     check_writable_install_location
-    check_xcode
-    check_macports
+    #check_xcode
+    #check_macports
     check_cellar
   end
 

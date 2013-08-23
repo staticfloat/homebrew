@@ -53,13 +53,13 @@ def oh1 title
 end
 
 def opoo warning
-  STDERR.puts "#{Tty.red}Warning#{Tty.reset}: #{warning}"
+  $stderr.puts "#{Tty.red}Warning#{Tty.reset}: #{warning}"
 end
 
 def onoe error
   lines = error.to_s.split("\n")
-  STDERR.puts "#{Tty.red}Error#{Tty.reset}: #{lines.shift}"
-  STDERR.puts lines unless lines.empty?
+  $stderr.puts "#{Tty.red}Error#{Tty.reset}: #{lines.shift}"
+  $stderr.puts lines unless lines.empty?
 end
 
 def ofail error
@@ -223,17 +223,22 @@ ensure
   trap("INT", std_trap)
 end
 
-def nostdout
+def nostdout( redirect_stderr = nil )
   if ARGV.verbose?
     yield
   else
     begin
       require 'stringio'
       real_stdout = $stdout
+      real_stderr = $stderr
       $stdout = StringIO.new
+      if redirect_stderr != nil
+        $stderr = StringIO.new
+      end
       yield
     ensure
       $stdout = real_stdout
+      $stderr = real_stderr
     end
   end
 end

@@ -5,6 +5,8 @@ require 'keg'
 require 'cmd/versions'
 require 'utils/inreplace'
 require 'erb'
+require 'open3'
+require 'extend/pathname'
 
 class BottleMerger < Formula
   # This provides a URL and Version which are the only needed properties of
@@ -42,7 +44,39 @@ module Homebrew extend self
   end
 
   def keg_contains string, keg
-    quiet_system 'fgrep', '--recursive', '--quiet', '--max-count=1', string, keg
+    if ARGV.homebrew_developer?
+      naughty_files = `/usr/bin/fgrep -l --recursive "#{string}" "#{keg}"`
+      naughty_files = (naughty_files.map{ |f| Pathname.new(f.strip) }).reject{ |f| f.symlink? }
+
+      if !naughty_files.empty?
+        opoo "String \"#{string}\" still exists in these files:"
+        naughty_files.each do |f|
+          puts "#{Tty.red}#{f}#{Tty.reset}"
+          
+          if f.mach_o_executable? or f.mach_o_bundle? or f.dylib? or f.extname == '.a'
+            linked_libraries = `otool -L "#{f}" | head -n +2 | fgrep "#{string}"`
+            if linked_libraries.empty?
+              linked_libraries.each_line do |lib|
+                puts " #{Tty.gray}-->#{Tty.reset} link to #{lib}"
+              end
+            end
+
+            strings = `strings -t x - "#{f}" | fgrep "#{string}"`.map{ |s| s.strip }
+            strings.take(4).each do |s|
+              offset, match = s.split
+              puts " #{Tty.gray}-->#{Tty.reset} match \"#{match}\" at offset #{Tty.em}0x#{offset}#{Tty.reset}"
+            end
+            if strings.length > 4
+              puts " #{Tty.gray}... (#{strings.length-3} more matches)#{Tty.reset}"
+            end
+          end
+        end
+        puts
+      end
+      return !naughty_files.empty?
+    else
+      return quiet_system 'fgrep', '--recursive', '--quiet', '--max-count=1', string, keg
+    end
   end
 
   def bottle_output bottle
