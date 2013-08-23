@@ -1,14 +1,20 @@
+require 'utils/inreplace'
+
 class Keg
-  def fix_install_names options={}
+  include Utils::Inreplace
+  def fix_install_names options=()
+    return unless MACOS
     mach_o_files.each do |file|
-      install_names_for(file, options) do |id, bad_names|
+      install_names_for(file, options, relocate_reject_proc( HOMEBREW_PREFIX )) do |id, bad_names|
         file.ensure_writable do
           install_name_tool("-id", id, file) if file.dylib?
 
           bad_names.each do |bad_name|
-            new_name = fixed_name(file, bad_name)
-            unless new_name == bad_name
-              install_name_tool("-change", bad_name, new_name, file)
+            if not bad_name.to_s =~ %r[^#{HOMEBREW_PREFIX}]
+              new_name = fixed_name(file, bad_name)              
+              unless new_name == bad_name
+                install_name_tool("-change", bad_name, new_name, file)
+              end
             end
           end
         end
@@ -37,6 +43,21 @@ class Keg
             install_name_tool("-change", old_cellar_name, new_cellar_name, file)
           end
         end
+      end
+    end
+
+
+    if old_cellar == :any
+      old_cellar = "/usr/local/Cellar"
+    end
+    if old_prefix == :any
+      old_prefix = "/usr/local"
+    end
+
+    pkgconfig_files.each do |pcfile|
+      pcfile.ensure_writable do
+        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_cellar}(.*)"?], "prefix=#{new_cellar}\\1" }
+        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_prefix}(.*)"?], "prefix=#{new_prefix}\\1" }
       end
     end
   end
@@ -142,5 +163,22 @@ class Keg
     end
 
     mach_o_files
+  end
+
+  def pkgconfig_files
+    pkgconfig_files = []
+    pc_dir = join 'lib', 'pkgconfig'
+    if pc_dir.directory?
+      pc_dir.find do |pc|
+        next if pc.symlink? or pc.directory?
+        pkgconfig_files << pc if pc.extname.to_s == '.pc'
+      end
+    end
+
+    (join '.').find do |pc|
+      next if pc.symlink? or pc.directory?
+      pkgconfig_files << pc if pc.basename.to_s.end_with? '-config' and pc.executable? and !pc.mach_o_executable?
+    end
+    pkgconfig_files
   end
 end
