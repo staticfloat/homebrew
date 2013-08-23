@@ -12,8 +12,10 @@ module Homebrew extend self
 
     ARGV.kegs.each do |keg|
       if keg.linked?
-        opoo "Already linked: #{keg}"
-        puts "To relink: brew unlink #{keg.fname} && brew link #{keg.fname}"
+        if !ARGV.force?
+          opoo "Already linked: #{keg}"
+          puts "To relink: brew unlink #{keg.fname} && brew link #{keg.fname}"
+        end
         next
       elsif keg_only?(keg.fname) && !ARGV.force?
         opoo "#{keg.fname} is keg-only and must be linked with --force"
