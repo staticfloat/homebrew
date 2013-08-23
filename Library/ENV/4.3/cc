@@ -165,6 +165,11 @@ class Cmd
       args << '-march=native' if tool =~ /clang/
     end
 
+    if cccfg? 'b'
+      args << '-mmacosx-version-min=10.6'
+      args << '-Wl,-macosx_version_min,10.6'
+    end
+
     args += %w{-arch i386 -arch x86_64} if cccfg? 'u'
     args << "-std=#{@arg0}" if @arg0 =~ /c[89]9/
     args
