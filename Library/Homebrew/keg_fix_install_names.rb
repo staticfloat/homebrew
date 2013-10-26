@@ -47,10 +47,10 @@ class Keg
 
 
     if old_cellar == :any
-      old_cellar = "/usr/local/Cellar"
+      old_cellar = HOMEBREW_CELLAR
     end
     if old_prefix == :any
-      old_prefix = "/usr/local"
+      old_prefix = HOMEBREW_PREFIX
     end
 
     pkgconfig_files.each do |pcfile|
