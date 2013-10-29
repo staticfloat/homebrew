@@ -45,7 +45,7 @@ module Homebrew extend self
 
   def keg_contains string, keg
     if ARGV.homebrew_developer?
-      naughty_files = `/usr/bin/fgrep -l --recursive "#{string}" "#{keg}"`
+      naughty_files = `/usr/bin/fgrep -l --recursive "#{string}" "#{keg}" 2>/dev/null`
       naughty_files = (naughty_files.map{ |f| Pathname.new(f.strip) }).reject{ |f| f.symlink? }
 
       if !naughty_files.empty?
