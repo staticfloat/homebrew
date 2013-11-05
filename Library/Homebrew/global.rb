@@ -71,10 +71,10 @@ RUBY_PATH = RUBY_BIN + RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG[
 
 if RUBY_PLATFORM =~ /darwin/
   MACOS_FULL_VERSION = `/usr/bin/sw_vers -productVersion`.chomp
-  MACOS_VERSION = MACOS_FULL_VERSION[/10\.\d+/].to_f
+  MACOS_VERSION = MACOS_FULL_VERSION[/10\.\d+/]
   OS_VERSION = "Mac OS X #{MACOS_FULL_VERSION}"
 else
-  MACOS_FULL_VERSION = MACOS_VERSION = 0
+  MACOS_FULL_VERSION = MACOS_VERSION = "0"
   OS_VERSION = RUBY_PLATFORM
 end
 
@@ -83,10 +83,7 @@ HOMEBREW_USER_AGENT = "Homebrew #{HOMEBREW_VERSION} (Ruby #{RUBY_VERSION}-#{RUBY
 
 HOMEBREW_CURL_ARGS = '-f#LA'
 
-# A regular expession to capture the username (one or more char but no `/`,
-# which has to be escaped like `\/`), repository, followed by an optional `/`
-# and an optional query.
-HOMEBREW_TAP_REGEX = /^([^\/]+)\/([^\/]+)\/?(.+)?$/
+HOMEBREW_TAP_FORMULA_REGEX = %r{^(\w+)/(\w+)/([^/]+)$}
 
 module Homebrew extend self
   include FileUtils

@@ -44,7 +44,7 @@ class FormulaUnavailableError < RuntimeError
   end
 
   def to_s
-    if name =~ HOMEBREW_TAP_REGEX then <<-EOS.undent
+    if name =~ HOMEBREW_TAP_FORMULA_REGEX then <<-EOS.undent
       No available formula for #$3 #{dependent_s}
       Please tap it and then try again: brew tap #$1/#$2
       EOS
@@ -198,8 +198,8 @@ class BuildError < Homebrew::InstallationError
       puts
       onoe "#{formula.name} did not build"
       unless (logs = Dir["#{ENV['HOME']}/Library/Logs/Homebrew/#{formula}/*"]).empty?
-        print "Logs: "
-        puts logs.map{|fn| "      #{fn}"}.join("\n")
+        puts "Logs:"
+        puts logs.map{|fn| "     #{fn}"}.join("\n")
       end
     end
     puts

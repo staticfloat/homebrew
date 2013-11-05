@@ -4,6 +4,12 @@ require 'utils'
 require 'utils/json'
 
 module Homebrew extend self
+
+  # A regular expession to capture the username (one or more char but no `/`,
+  # which has to be escaped like `\/`), repository, followed by an optional `/`
+  # and an optional query.
+  TAP_QUERY_REGEX = /^([^\/]+)\/([^\/]+)\/?(.+)?$/
+
   def search
     if ARGV.include? '--macports'
       exec_browser "http://www.macports.org/ports.php?by=name&substr=#{ARGV.next}"
@@ -19,7 +25,7 @@ module Homebrew extend self
       exec_browser "http://packages.ubuntu.com/search?keywords=#{ARGV.next}&searchon=names&suite=all&section=all"
     elsif (query = ARGV.first).nil?
       puts_columns Formula.names
-    elsif ARGV.first =~ HOMEBREW_TAP_REGEX
+    elsif ARGV.first =~ TAP_QUERY_REGEX
       # So look for user/repo/query or list all formulae by the tap
       # we downcase to avoid case-insensitive filesystem issues.
       user, repo, query = $1.downcase, $2.downcase, $3
@@ -55,7 +61,7 @@ module Homebrew extend self
       count = local_results.length + tap_results.length
 
       if count == 0 and not blacklisted? query
-        puts "No formula found for #{query.inspect}. Searching open pull requests..."
+        puts "No formula found for #{query.inspect}."
         begin
           GitHub.find_pull_requests(rx) { |pull| puts pull }
         rescue GitHub::Error => e
