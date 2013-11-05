@@ -55,8 +55,8 @@ class Keg
 
     pkgconfig_files.each do |pcfile|
       pcfile.ensure_writable do
-        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_cellar}(.*)"?], "prefix=#{new_cellar}\\1" }
-        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_prefix}(.*)"?], "prefix=#{new_prefix}\\1" }
+        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_cellar}(.*?)"?$], "prefix=#{new_cellar}\\1" }
+        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_prefix}(.*?)"?$], "prefix=#{new_prefix}\\1" }
       end
     end
   end
