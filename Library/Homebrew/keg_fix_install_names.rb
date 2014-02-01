@@ -1,6 +1,7 @@
 require 'utils/inreplace'
 
 class Keg
+  include Utils::Inreplace
   PREFIX_PLACEHOLDER = "@@HOMEBREW_PREFIX@@".freeze
   CELLAR_PLACEHOLDER = "@@HOMEBREW_CELLAR@@".freeze
 
@@ -49,21 +50,6 @@ class Keg
           f.reopen(file, 'wb')
           f.write(s)
         end
-      end
-    end
-
-
-    if old_cellar == :any
-      old_cellar = HOMEBREW_CELLAR
-    end
-    if old_prefix == :any
-      old_prefix = HOMEBREW_PREFIX
-    end
-
-    pkgconfig_files.each do |pcfile|
-      pcfile.ensure_writable do
-        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_cellar}(.*?)"?$], "prefix=#{new_cellar}\\1" }
-        nostdout(true) { inreplace pcfile, %r[[\S]+="?#{old_prefix}(.*?)"?$], "prefix=#{new_prefix}\\1" }
       end
     end
   end
